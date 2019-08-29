@@ -5,7 +5,7 @@ Currently following:
 https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Base_code
 
 Status: 
-Set up base class and have just created GLFW window
+Drawing a triangle --> Setup --> Instance --> Checking for extension support
 
 
 Resources:
