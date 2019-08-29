@@ -5,7 +5,7 @@ Currently following:
 https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Base_code
 
 Status: 
-Drawing a triangle --> Setup --> Instance --> Checking for extension support
+Drawing a triangle --> Setup --> Instance --> Cleaning up
 
 
 Resources:
