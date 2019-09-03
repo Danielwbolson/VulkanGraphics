@@ -201,16 +201,21 @@ void HelloTriangleApplication::pickPhysicalDevice() {
 }
 
 bool HelloTriangleApplication::isDeviceSuitable(const VkPhysicalDevice& device) {
-	// Get basic device info
-	VkPhysicalDeviceProperties deviceProperties;
-	vkGetPhysicalDeviceProperties(device, &deviceProperties);
+	// Make sure our device has a graphics queue and thus can process the commands we want
+	QueueFamilyIndices indices = findQueueFamilies(device);
+	// True if we successfully found the queue families we need
+	return indices.isComplete();
 
-	// Get information about features like texture compression, 64bit floats, multi-viewport rendering
-	VkPhysicalDeviceFeatures deviceFeatures;
-	vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+	//// Get basic device info
+	//VkPhysicalDeviceProperties deviceProperties;
+	//vkGetPhysicalDeviceProperties(device, &deviceProperties);
 
-	// Return true if we have a discrete gpu and it supports a geometry shader
-	return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU && deviceFeatures.geometryShader;
+	//// Get information about features like texture compression, 64bit floats, multi-viewport rendering
+	//VkPhysicalDeviceFeatures deviceFeatures;
+	//vkGetPhysicalDeviceFeatures(device, &deviceFeatures);
+
+	//// Return true if we have a discrete gpu and it supports a geometry shader
+	//return deviceProperties.deviceType == VK_PHYSICAL_DEVICE_TYPE_DISCRETE_GPU;
 }
 
 QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(const VkPhysicalDevice& device) {
@@ -226,6 +231,11 @@ QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(const VkPhysicalD
 	// Find our graphics queue family
 	int i = 0; 
 	for (const auto& queueFamily : queueFamilies) {
+		// Early exit if we have already found a suitable graphics card
+		if (indices.isComplete()) {
+			break;
+		}
+
 		if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
 			indices.graphicsFamily = i;
 		}
