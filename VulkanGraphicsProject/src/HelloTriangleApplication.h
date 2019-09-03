@@ -41,6 +41,9 @@ private:
 	// Find which queue families are supported by a device
 	QueueFamilyIndices findQueueFamilies(const VkPhysicalDevice& device);
 
+	// Create a logical device to interact with gpu with
+	void createLogicalDevice();
+
 public:
 	const int windowWidth = 800;
 	const int windowHeight = 600;
@@ -60,6 +63,10 @@ public:
 private:
 	GLFWwindow* window;
 	VkInstance instance;
+
+	// Logical device to interact with gpu
+	// May have multiple logical devices, each for different requirements
+	VkDevice device;
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE; // implicitly destroyed with instance
 
 };

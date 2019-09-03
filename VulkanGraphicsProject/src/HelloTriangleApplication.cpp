@@ -28,6 +28,9 @@ void HelloTriangleApplication::initVulkan() {
 
 	// Grab our graphics card
 	pickPhysicalDevice();
+
+	// Create a logical device to interact with the gpus
+	createLogicalDevice();
 }
 
 void HelloTriangleApplication::mainLoop() {
@@ -245,4 +248,8 @@ QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(const VkPhysicalD
 	}
 
 	return indices;
+}
+
+void HelloTriangleApplication::createLogicalDevice() {
+
 }
