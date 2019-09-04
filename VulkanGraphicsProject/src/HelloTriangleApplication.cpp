@@ -44,6 +44,9 @@ void HelloTriangleApplication::cleanup() {
 	// Destroy vulkan instance
 	vkDestroyInstance(instance, nullptr);
 
+	// Destroy logical device
+	vkDestroyDevice(logicalDevice, nullptr);
+
 	// Destroy created window
 	glfwDestroyWindow(window);
 
@@ -205,7 +208,7 @@ void HelloTriangleApplication::pickPhysicalDevice() {
 
 bool HelloTriangleApplication::isDeviceSuitable(const VkPhysicalDevice& device) {
 	// Make sure our device has a graphics queue and thus can process the commands we want
-	QueueFamilyIndices indices = findQueueFamilies(device);
+	indices = findQueueFamilies(device);
 	// True if we successfully found the queue families we need
 	return indices.isComplete();
 
@@ -222,8 +225,6 @@ bool HelloTriangleApplication::isDeviceSuitable(const VkPhysicalDevice& device) 
 }
 
 QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(const VkPhysicalDevice& device) {
-	QueueFamilyIndices indices;
-
 	// Get our Queue Family properties first by finding how many, than allocating space for them grabbing them
 	unsigned int queueFamilyCount = 0;
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, nullptr);
@@ -251,5 +252,53 @@ QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(const VkPhysicalD
 }
 
 void HelloTriangleApplication::createLogicalDevice() {
+	// Number of queues we want for a single queue family
+	// Currently only interested in graphics queue
+	VkDeviceQueueCreateInfo queueCreateInfo = {};
+	queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+	queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
+	queueCreateInfo.queueCount = 1;
 
+	// Only a few queues per queue family
+
+	// Set priority to influence scheduling of buffere execution
+	float queuePriority = 1.0f;
+	queueCreateInfo.pQueuePriorities = &queuePriority;
+
+	// What does this device support, which features?
+	VkPhysicalDeviceFeatures deviceFeatures = {};
+
+	// Set up logic device info using our queue and features struct
+	VkDeviceCreateInfo createInfo = {};
+
+	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
+	createInfo.pQueueCreateInfos = &queueCreateInfo;
+	createInfo.queueCreateInfoCount = 1;
+	createInfo.pEnabledFeatures = &deviceFeatures;
+
+	// Device specific setup. Device specific setup matters because diffferent devices support
+	// different features. EX. Compute gpu vs graphcis gpu. Compute doesn't have the feature for rendering
+	createInfo.enabledExtensionCount = 0;
+
+	// New vulkan does not differentiate between global and device validation layers
+	// This is for older versions
+	if (enableValidationLayers) {
+		createInfo.enabledLayerCount = static_cast<unsigned int>(validationLayers.size());
+		createInfo.ppEnabledLayerNames = validationLayers.data();
+	} else {
+		createInfo.enabledLayerCount = 0;
+	}
+	
+	// Actually instantiate our logical device, for communication with gpu
+	// Will throw an error if we have tried to enable non-existant device extensions or
+	// tried to specify features that are not actually supported
+	if (vkCreateDevice(physicalDevice, &createInfo, nullptr, &logicalDevice) != VK_SUCCESS) {
+		throw std::runtime_error("Failed to create logical device to interact with gpu");
+	}
+
+	// Create queue handler so we can interact with it
+	vkGetDeviceQueue(logicalDevice, indices.graphicsFamily.value(), 0, &graphicsQueue);
+
+	// At this point, we can actually use the graphics card to do things
+	// We have set up the basic necessary information to interact with the gpu and draw
 }

@@ -52,8 +52,6 @@ public:
 		"VK_LAYER_KHRONOS_validation",
 	};
 
-	QueueFamilyIndices
-
 #ifdef NDEBUG
 	const bool enableValidationLayers = false;
 #else
@@ -66,7 +64,12 @@ private:
 
 	// Logical device to interact with gpu
 	// May have multiple logical devices, each for different requirements
-	VkDevice device;
+	VkDevice logicalDevice;
 	VkPhysicalDevice physicalDevice = VK_NULL_HANDLE; // implicitly destroyed with instance
 
+	// Handle to interact with graphics queues in the logical device
+	VkQueue graphicsQueue;
+
+	// Cached queue families supported on our physical device
+	QueueFamilyIndices indices;
 };

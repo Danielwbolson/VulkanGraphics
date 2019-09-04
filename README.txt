@@ -5,7 +5,7 @@ Currently following:
 https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Base_code
 
 Status: 
-Drawing a triangle --> Setup --> Physical Devices and Queue Families --> Queue Families
+Drawing a triangle --> Presentation --> Window Surface
 
 
 Resources:
