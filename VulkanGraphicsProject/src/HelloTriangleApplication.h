@@ -7,6 +7,7 @@
 #include <stdexcept>
 #include <vector>
 #include <iostream>
+#include <set>
 
 class HelloTriangleApplication {
 
@@ -44,6 +45,9 @@ private:
 	// Create a logical device to interact with gpu with
 	void createLogicalDevice();
 
+	// Create our window to interact with our application
+	void createSurface();
+
 public:
 	const int windowWidth = 800;
 	const int windowHeight = 600;
@@ -69,7 +73,14 @@ private:
 
 	// Handle to interact with graphics queues in the logical device
 	VkQueue graphicsQueue;
+	// Handle to interact with presentation queue in the logical device
+	VkQueue presentationQueue;
 
 	// Cached queue families supported on our physical device
 	QueueFamilyIndices indices;
+
+	// Window surface, where pixels go, allows platform agnostic vulkan to interface with window
+	VkSurfaceKHR windowSurface;
+
+
 };

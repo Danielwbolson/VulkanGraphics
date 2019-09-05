@@ -26,6 +26,9 @@ void HelloTriangleApplication::initVulkan() {
 	// Create our Vulkan instance. Connection between app and vulkan
 	createInstance();
 
+	// Create our window for our application
+	createSurface();
+
 	// Grab our graphics card
 	pickPhysicalDevice();
 
@@ -41,6 +44,9 @@ void HelloTriangleApplication::mainLoop() {
 }
 
 void HelloTriangleApplication::cleanup() {
+	// Destroy our glfw window
+	vkDestroySurfaceKHR(instance, windowSurface, nullptr);
+
 	// Destroy vulkan instance
 	vkDestroyInstance(instance, nullptr);
 
@@ -207,7 +213,7 @@ void HelloTriangleApplication::pickPhysicalDevice() {
 }
 
 bool HelloTriangleApplication::isDeviceSuitable(const VkPhysicalDevice& device) {
-	// Make sure our device has a graphics queue and thus can process the commands we want
+	// Make sure our device has necessary queues and thus can process the commands we want
 	indices = findQueueFamilies(device);
 	// True if we successfully found the queue families we need
 	return indices.isComplete();
@@ -232,7 +238,8 @@ QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(const VkPhysicalD
 	std::vector<VkQueueFamilyProperties> queueFamilies(queueFamilyCount);
 	vkGetPhysicalDeviceQueueFamilyProperties(device, &queueFamilyCount, queueFamilies.data());
 
-	// Find our graphics queue family
+	// Find our wanted queue families
+	// Very likely that presentation and graphics will be the same index, but possibility of not
 	int i = 0; 
 	for (const auto& queueFamily : queueFamilies) {
 		// Early exit if we have already found a suitable graphics card
@@ -240,6 +247,14 @@ QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(const VkPhysicalD
 			break;
 		}
 
+		// Grab presentation (window) queue index
+		VkBool32 presentSupport = false;
+		vkGetPhysicalDeviceSurfaceSupportKHR(device, i, windowSurface, &presentSupport);
+		if (queueFamily.queueCount > 0 && presentSupport) {
+			indices.presentFamily = i;
+		}
+
+		// Grab graphics queue index
 		if (queueFamily.queueCount > 0 && queueFamily.queueFlags & VK_QUEUE_GRAPHICS_BIT) {
 			indices.graphicsFamily = i;
 		}
@@ -252,28 +267,32 @@ QueueFamilyIndices HelloTriangleApplication::findQueueFamilies(const VkPhysicalD
 }
 
 void HelloTriangleApplication::createLogicalDevice() {
-	// Number of queues we want for a single queue family
-	// Currently only interested in graphics queue
-	VkDeviceQueueCreateInfo queueCreateInfo = {};
-	queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
-	queueCreateInfo.queueFamilyIndex = indices.graphicsFamily.value();
-	queueCreateInfo.queueCount = 1;
 
-	// Only a few queues per queue family
-
-	// Set priority to influence scheduling of buffere execution
+	// Create our queue families for our logical device
+	std::vector<VkDeviceQueueCreateInfo> queueCreateInfos;
+	std::set<unsigned int> uniqueQueueFamilies = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 	float queuePriority = 1.0f;
-	queueCreateInfo.pQueuePriorities = &queuePriority;
+
+	// Must create a different queue info per family
+	for (unsigned int queueFamily : uniqueQueueFamilies) {
+
+		VkDeviceQueueCreateInfo queueCreateInfo = {};
+		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
+		queueCreateInfo.queueFamilyIndex = queueFamily;
+		queueCreateInfo.queueCount = 1;
+		queueCreateInfo.pQueuePriorities = &queuePriority;
+		queueCreateInfos.push_back(queueCreateInfo);
+	}
 
 	// What does this device support, which features?
 	VkPhysicalDeviceFeatures deviceFeatures = {};
 
-	// Set up logic device info using our queue and features struct
+	// Set up logic device info using our queues and features struct
 	VkDeviceCreateInfo createInfo = {};
 
 	createInfo.sType = VK_STRUCTURE_TYPE_DEVICE_CREATE_INFO;
-	createInfo.pQueueCreateInfos = &queueCreateInfo;
-	createInfo.queueCreateInfoCount = 1;
+	createInfo.queueCreateInfoCount = static_cast<unsigned int>(queueCreateInfos.size());
+	createInfo.pQueueCreateInfos = queueCreateInfos.data();
 	createInfo.pEnabledFeatures = &deviceFeatures;
 
 	// Device specific setup. Device specific setup matters because diffferent devices support
@@ -296,9 +315,17 @@ void HelloTriangleApplication::createLogicalDevice() {
 		throw std::runtime_error("Failed to create logical device to interact with gpu");
 	}
 
-	// Create queue handler so we can interact with it
+	// Create graphics and presentation queue handlers so we can interact with them
 	vkGetDeviceQueue(logicalDevice, indices.graphicsFamily.value(), 0, &graphicsQueue);
+	vkGetDeviceQueue(logicalDevice, indices.presentFamily.value(), 0, &presentationQueue);
 
 	// At this point, we can actually use the graphics card to do things
 	// We have set up the basic necessary information to interact with the gpu and draw
+}
+
+void HelloTriangleApplication::createSurface() {
+	// Vulkan is platform agnostic so GLFW handles platform specific window creation for us
+	if (glfwCreateWindowSurface(instance, window, nullptr, &windowSurface) != VK_SUCCESS) {
+		throw std::runtime_error("Failed to create window surface with glfw/vulkan");
+	}
 }
