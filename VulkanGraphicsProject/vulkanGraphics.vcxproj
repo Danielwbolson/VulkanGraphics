@@ -151,11 +151,12 @@
     </Link>
   </ItemDefinitionGroup>
   <ItemGroup>
-    <ClCompile Include="src\HelloTriangleApplication.cpp" />
+    <ClCompile Include="src\VulkanApplication.cpp" />
     <ClCompile Include="src\main.cpp" />
   </ItemGroup>
   <ItemGroup>
-    <ClInclude Include="src\HelloTriangleApplication.h" />
+    <ClInclude Include="src\SwapChainSupportDetails.h" />
+    <ClInclude Include="src\VulkanApplication.h" />
     <ClInclude Include="src\QueueFamilyIndices.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

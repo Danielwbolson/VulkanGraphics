@@ -1,7 +1,7 @@
 
 // GLFW includes inself and loads vulkan
 
-#include "HelloTriangleApplication.h"
+#include "VulkanApplication.h"
 
 #include <iostream>
 #include <stdexcept>
@@ -9,7 +9,7 @@
 #include <cstdlib>
 
 int main() {
-	HelloTriangleApplication app;
+	VulkanApplication app;
 
 	try {
 		app.run();

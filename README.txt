@@ -5,7 +5,7 @@ Currently following:
 https://vulkan-tutorial.com/Drawing_a_triangle/Setup/Base_code
 
 Status: 
-Drawing a triangle --> Presentation --> Swap Chain
+Drawing a triangle --> Presentation --> Swap Chain --> Presentation Mode
 
 
 Resources:
