@@ -7,22 +7,14 @@
 #include "QueueFamilyIndices.h"
 #include "SwapChainSupportDetails.h"
 
-#include <stdexcept>
-#include <vector>
-#include <iostream>
-#include <set>
-
 class VulkanApplication {
 
-	/// * * * * * PUBLIC/PRIVATE FUNCTIONS * * * * * ///
+	/// * * * * * INITIALIZATION AND MAIN LOGIC * * * * * ///
 public:
 	// Run our HelloTriangle program
 	void run();
 
 private:
-
-	/// * * * * * INITIALIZATION * * * * * ///
-
 	// Initialize GLFW and create a window
 	void initWindow();
 
@@ -39,7 +31,7 @@ private:
 	
 	/// * * * * * VULKAN HANDLE CREATION * * * * * ///
 
-	// Creates a Vulkan instance
+	// Create our Vulkan instance. Connection between app and vulkan
 	void createInstance();
 
 	// Create a logical device to interact with gpu with
@@ -47,9 +39,16 @@ private:
 
 	// Create our window to interact with our application
 	void createSurface();
+
+	// Create our swapchain to draw images to our surface
+	void createSwapChain();
+
+	// Create our handle to basic views of our swap chain images
+	void createImageViews();
 	
 	// Check if all requested validation layers are supported
 	bool checkValidationSupport();
+
 
 
 
@@ -74,9 +73,14 @@ private:
 	// Choose which format we want from those available
 	VkSurfaceFormatKHR chooseSwapSurfaceFormat(const std::vector<VkSurfaceFormatKHR>& availableFormats);
 
+	// Choose which presentation mode we want
+	// Only VK_PRESENT_MODE_FIFO_KHR is guaranteed
+	VkPresentModeKHR chooseSwapPresentMode(const std::vector<VkPresentModeKHR>& availablePresentModes);
+
+	// Set resolution of swap chain images
+	VkExtent2D chooseSwapExtent(const VkSurfaceCapabilitiesKHR& capabilities);
 
 
-	/// * * * * * PUBLIC/PRIVATE VARIABLES * * * * * ///
 public:
 	const int windowWidth = 800;
 	const int windowHeight = 600;
@@ -104,6 +108,14 @@ private:
 	// Window surface, where pixels go, allows platform agnostic vulkan to interface with window
 	// Our interface between Vulkan and our GLFW window
 	VkSurfaceKHR windowSurface;
+
+	// Our swapchain handles
+	VkSwapchainKHR swapChain;
+	std::vector<VkImage> swapChainImages;
+	std::vector<VkImageView> swapChainImageViews;
+	VkFormat swapChainImageFormat;
+	VkExtent2D swapChainExtent;
+
 
 	// Which validation layers we want, which check for improper usage
 	// Validates what we are using
