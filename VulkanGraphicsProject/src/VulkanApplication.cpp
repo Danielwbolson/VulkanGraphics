@@ -49,27 +49,14 @@ void VulkanApplication::mainLoop() {
 }
 
 void VulkanApplication::cleanup() {
-	// Destoy our image views
 	for (auto& imageView : swapChainImageViews) {
 		vkDestroyImageView(logicalDevice, imageView, nullptr);
 	}
-
-	// Destroy our swap chain handle
 	vkDestroySwapchainKHR(logicalDevice, swapChain, nullptr);
-
-	// Destroy our glfw window
 	vkDestroySurfaceKHR(instance, windowSurface, nullptr);
-
-	// Destroy logical device
 	vkDestroyDevice(logicalDevice, nullptr);
-
-	// Destroy vulkan instance
 	vkDestroyInstance(instance, nullptr);
-
-	// Destroy created window
 	glfwDestroyWindow(window);
-
-	// Terminate glfw itself
 	glfwTerminate();
 }
 
@@ -101,13 +88,10 @@ void VulkanApplication::createInstance() {
 	// Create extension interface to allow us to work glfw windows
 	uint32_t glfwExtensionCount = 0;
 	const char** glfwExtensions;
-
 	glfwExtensions = glfwGetRequiredInstanceExtensions(&glfwExtensionCount);
-
 	createInfo.enabledExtensionCount = glfwExtensionCount;
 	createInfo.ppEnabledExtensionNames = glfwExtensions;
 
-	// Enable global validation layers if wanted, otherwise set them to nothing/null
 	if (enableValidationLayers) {
 		createInfo.enabledLayerCount = static_cast<uint32_t>(validationLayers.size());
 		createInfo.ppEnabledLayerNames = validationLayers.data();
@@ -116,12 +100,9 @@ void VulkanApplication::createInstance() {
 	}
 
 	// Check for extension support
-	// Get number of extensions so we can allocate space
 	uint32_t extensionCount = 0;
 	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, nullptr);
 
-	// Allocate an array to hold extension details, and fill it
-	// Each VkExtensionProperty holds a name and version of an extension
 	std::vector<VkExtensionProperties> extensions(extensionCount);
 	vkEnumerateInstanceExtensionProperties(nullptr, &extensionCount, extensions.data());
 
@@ -146,14 +127,13 @@ void VulkanApplication::createInstance() {
 		bool usedbyGLFW = false;
 
 		for (int i = 0; i < (int)glfwExtensionCount; i++) {
-			// Ithis extention is used  by glfw, break and print as such
+			// If this extention is used  by glfw, break and print as such
 			if (strcmp(glfwExtensions[i], extension.extensionName) == 0) {
 				usedbyGLFW = true;
 				break;
 			}
 		}
 
-		// Give user some info in an extension is being used by GLFW
 		if (usedbyGLFW) {
 			std::cout << "\t" << extension.extensionName << " : used by GLFW" << std::endl;
 		} else {
@@ -163,10 +143,6 @@ void VulkanApplication::createInstance() {
 
 
 	// Finally, create instance 
-	// arguments:
-	//	pointer to creation struct, 
-	//	pointer to custom allocator callback, 
-	//	pointer to variable that stores handle to instance)
 	if (vkCreateInstance(&createInfo, nullptr, &instance) != VK_SUCCESS) {
 		throw std::runtime_error("failed to create vulkan instance!");
 	}
@@ -181,7 +157,6 @@ void VulkanApplication::createLogicalDevice() {
 
 	// Must create a different queue info per family
 	for (uint32_t queueFamily : uniqueQueueFamilies) {
-
 		VkDeviceQueueCreateInfo queueCreateInfo = {};
 		queueCreateInfo.sType = VK_STRUCTURE_TYPE_DEVICE_QUEUE_CREATE_INFO;
 		queueCreateInfo.queueFamilyIndex = queueFamily;
@@ -225,9 +200,6 @@ void VulkanApplication::createLogicalDevice() {
 	// Create graphics and presentation queue handlers so we can interact with them
 	vkGetDeviceQueue(logicalDevice, indices.graphicsFamily.value(), 0, &graphicsQueue);
 	vkGetDeviceQueue(logicalDevice, indices.presentFamily.value(), 0, &presentationQueue);
-
-	// At this point, we can actually use the graphics card to do things
-	// We have set up the basic necessary information to interact with the gpu and draw
 }
 
 void VulkanApplication::createSurface() {
@@ -242,56 +214,46 @@ void VulkanApplication::createSwapChain() {
 	SwapChainSupportDetails swapChainSupport = querySwapChainSupport(physicalDevice);
 
 	VkSurfaceFormatKHR surfaceFormat = chooseSwapSurfaceFormat(swapChainSupport.formats);
-	VkPresentModeKHR presentMode = chooseSwapPresentMode(swapChainSupport.presentModes);
-	swapChainExtent = chooseSwapExtent(swapChainSupport.capabilities);
+	VkPresentModeKHR presentMode     = chooseSwapPresentMode(swapChainSupport.presentModes);
+	swapChainExtent					 = chooseSwapExtent(swapChainSupport.capabilities);
+	swapChainImageFormat			 = surfaceFormat.format;
+	uint32_t imageCount				 = swapChainSupport.capabilities.minImageCount + 1;
 
-	swapChainImageFormat = surfaceFormat.format;
-	
-	// 1 extra image to avoid having to wait on driver
-	uint32_t imageCount = swapChainSupport.capabilities.minImageCount + 1;
-
-	// Make sure that we are not over the max number of images available
 	if (swapChainSupport.capabilities.maxImageCount > 0 && imageCount > swapChainSupport.capabilities.maxImageCount) {
 		imageCount = swapChainSupport.capabilities.maxImageCount;
 	}
 
 	// Create our swapchain handle and connect to our window surface
 	VkSwapchainCreateInfoKHR createInfo = {};
-	createInfo.sType = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
-	createInfo.surface = windowSurface;
 
-	createInfo.minImageCount = imageCount;
-	createInfo.imageFormat = swapChainImageFormat;
-	createInfo.imageColorSpace = surfaceFormat.colorSpace;
-	createInfo.imageExtent = swapChainExtent;
+	createInfo.sType            = VK_STRUCTURE_TYPE_SWAPCHAIN_CREATE_INFO_KHR;
+	createInfo.surface          = windowSurface;
+	createInfo.minImageCount    = imageCount;
+	createInfo.imageFormat      = swapChainImageFormat;
+	createInfo.imageColorSpace  = surfaceFormat.colorSpace;
+	createInfo.imageExtent      = swapChainExtent;
 	// number of layers per image (1 unless stereo)
-	createInfo.imageArrayLayers = 1;
+	createInfo.imageArrayLayers = 1; 
 	// We plan on rendering to this swap chain, would use different setting for post-processing
-	createInfo.imageUsage = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; 
+	createInfo.imageUsage       = VK_IMAGE_USAGE_COLOR_ATTACHMENT_BIT; 
 
 	// Handle swap chains across multiple queue families
 	uint32_t queueFamiliyIndices[] = { indices.graphicsFamily.value(), indices.presentFamily.value() };
 	if (indices.graphicsFamily != indices.presentFamily) {
-		createInfo.imageSharingMode = VK_SHARING_MODE_CONCURRENT;
+		createInfo.imageSharingMode      = VK_SHARING_MODE_CONCURRENT;
 		createInfo.queueFamilyIndexCount = 2;
-		createInfo.pQueueFamilyIndices = queueFamiliyIndices;
+		createInfo.pQueueFamilyIndices   = queueFamiliyIndices;
 	} else {
-		createInfo.imageSharingMode = VK_SHARING_MODE_EXCLUSIVE;
+		createInfo.imageSharingMode      = VK_SHARING_MODE_EXCLUSIVE;
 		createInfo.queueFamilyIndexCount = 0;
-		createInfo.pQueueFamilyIndices = nullptr;
+		createInfo.pQueueFamilyIndices   = nullptr;
 	}
 
-	// Default transformation on our images
-	createInfo.preTransform = swapChainSupport.capabilities.currentTransform;
-
-	// Ignore alpha channel of window, don't blend with other windows
+	createInfo.preTransform   = swapChainSupport.capabilities.currentTransform;
 	createInfo.compositeAlpha = VK_COMPOSITE_ALPHA_OPAQUE_BIT_KHR;
+	createInfo.presentMode    = presentMode;
+	createInfo.clipped        = VK_TRUE;
 
-	// Set our present mode and ignore hidden pixels
-	createInfo.presentMode = presentMode;
-	createInfo.clipped = VK_TRUE;
-
-	// Finally, create the actual swap chain handle
 	if (vkCreateSwapchainKHR(logicalDevice, &createInfo, nullptr, &swapChain) != VK_SUCCESS) {
 		throw std::runtime_error("Failed to create Swapchain.");
 	}
@@ -331,11 +293,9 @@ void VulkanApplication::createImageViews() {
 }
 
 bool VulkanApplication::checkValidationSupport() {
-	// Get number of layers supported by vulkan
+	// Get validation layers supported by vulkan
 	uint32_t layerCount;
 	vkEnumerateInstanceLayerProperties(&layerCount, nullptr);
-
-	// Get a vector of all of our supported validation layers
 	std::vector<VkLayerProperties> availableLayers(layerCount);
 	vkEnumerateInstanceLayerProperties(&layerCount, availableLayers.data());
 
@@ -396,12 +356,10 @@ bool VulkanApplication::isDeviceSuitable(const VkPhysicalDevice& device) {
 	// Make sure our device has necessary queue families and thus can process the commands we want
 	indices = findQueueFamilies(device);
 
-	// Make sure that the device has the extensions we want (drawing to screen, etc.)
+	// Make sure that the device has the extensions we want (drawing to screen, swapchain, etc.)
 	bool extensionsSupported = checkExtensionSupport(device);
 
 	// Make sure that our device swap chain supports at least one format and present mode
-	// Only check it if we have already verified that our device has the extensions that we want
-	// which include swap chain support
 	bool swapChainAdequate;
 	if (extensionsSupported) {
 		SwapChainSupportDetails swapChainSupport = querySwapChainSupport(device);
