@@ -1,0 +1,9 @@
+D:/Daniel/Desktop/Projects/VulkanGraphics/build/CMakeFiles/vulkanGraphics.dir
+D:/Daniel/Desktop/Projects/VulkanGraphics/build/CMakeFiles/INSTALL.dir
+D:/Daniel/Desktop/Projects/VulkanGraphics/build/CMakeFiles/ALL_BUILD.dir
+D:/Daniel/Desktop/Projects/VulkanGraphics/build/CMakeFiles/ZERO_CHECK.dir
+D:/Daniel/Desktop/Projects/VulkanGraphics/build/external/glfw/CMakeFiles/uninstall.dir
+D:/Daniel/Desktop/Projects/VulkanGraphics/build/external/glfw/CMakeFiles/INSTALL.dir
+D:/Daniel/Desktop/Projects/VulkanGraphics/build/external/glfw/CMakeFiles/ALL_BUILD.dir
+D:/Daniel/Desktop/Projects/VulkanGraphics/build/external/glfw/src/CMakeFiles/glfw.dir
+D:/Daniel/Desktop/Projects/VulkanGraphics/build/external/glfw/src/CMakeFiles/INSTALL.dir
