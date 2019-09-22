@@ -25,15 +25,33 @@ add_subdirectory(external/glfw)
 
 cmake_minimum_required(VERSION 3.8)
 
+configure_file(${CMAKE_CURRENT_SOURCE_DIR}/Configuration.h.in ${CMAKE_CURRENT_SOURCE_DIR}/src/headers/Configuration.h)
+
 set(SRC
-	src/main.cpp
-	src/VulkanApplication.cpp
+	src/source/main.cpp
+	src/source/VulkanApplication.cpp
 )
 
 set(INCS
-	src/QueueFamilyIndices.h
-	src/SwapChainSupportDetails.h
-	src/VulkanApplication.h
+	src/headers/QueueFamilyIndices.h
+	src/headers/SwapChainSupportDetails.h
+	src/headers/VulkanApplication.h
+	src/headers/Util.h
+	src/headers/Configuration.h
+)
+
+set(SHADERS
+	src/shaders/vulkan.frag
+	src/shaders/vulkan.vert
+	src/shaders/vulkan_frag.spv
+	src/shaders/vulkan_vert.spv
+	src/shaders/compile.bat
+)
+
+set(ALL_FILES
+	${SRC}
+	${INCS}
+	${SHADERS}
 )
 
 set(INCLUDE_DIRS
@@ -41,6 +59,8 @@ set(INCLUDE_DIRS
 	${CMAKE_CURRENT_SOURCE_DIR}/external/glfw
 	${CMAKE_CURRENT_SOURCE_DIR}/external/glfw/include
 	${CMAKE_CURRENT_SOURCE_DIR}/external/Vulkan/1.1.114.0/include
+	
+	${CMAKE_CURRENT_SOURCE_DIR}/src/headers
 )
 
 set(SYSTEM_LIBS "")
@@ -77,7 +97,8 @@ include_directories(${INCLUDE_DIRS})
 
 set_property(DIRECTORY ${CMAKE_CURRENT_SOURCE_DIR} PROPERTY VS_STARTUP_PROJECT vulkanGraphics)
 
-add_executable(vulkanGraphics ${SRC} ${INCS})
+add_executable(vulkanGraphics ${SRC} ${INCS} ${SHADERS})
+source_group(TREE ${CMAKE_SOURCE_DIR} FILES ${ALL_FILES})
 
 if (MSVC)
 	target_compile_options(vulkanGraphics PRIVATE "/MP")

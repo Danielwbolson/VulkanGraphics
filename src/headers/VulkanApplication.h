@@ -48,6 +48,9 @@ private:
 
 	// Create our grpahics pipeline handle
 	void createGraphicsPipeline();
+
+	// Create our shader module
+	VkShaderModule createShaderModule(const std::vector<char>& code);
 	
 	// Check if all requested validation layers are supported
 	bool checkValidationSupport();
@@ -119,7 +122,7 @@ private:
 	VkFormat swapChainImageFormat;
 	VkExtent2D swapChainExtent;
 
-
+	//
 	// Which validation layers we want, which check for improper usage
 	// Validates what we are using
 	const std::vector<const char*> validationLayers = {

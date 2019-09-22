@@ -4,9 +4,6 @@
 #include "VulkanApplication.h"
 
 #include <iostream>
-#include <stdexcept>
-#include <functional>
-#include <cstdlib>
 
 int main() {
 	VulkanApplication app;

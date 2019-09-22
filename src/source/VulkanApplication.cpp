@@ -1,5 +1,7 @@
 
 #include "VulkanApplication.h"
+#include "configuration.h"
+#include "Util.h"
 
 #include <stdexcept>
 #include <vector>
@@ -7,6 +9,8 @@
 #include <set>
 #include <algorithm>
 
+// Ctrl+M, Ctrl+O Collapses all functions
+// Ctrl+M, Ctrl+L Expands all functions
 
 /// * * * * * INITIALIZATION AND MAIN LOGIC * * * * * ///
 
@@ -294,7 +298,25 @@ void VulkanApplication::createImageViews() {
 }
 
 void VulkanApplication::createGraphicsPipeline() {
+	auto vertShaderCode = util::readFile(VK_ROOT_DIR "src/shaders/vulkan_vert.spv");
+	auto fragShaderCode = util::readFile(VK_ROOT_DIR "src/shaders/vulkan_frag.spv");
 
+	VkShaderModule vertShaderModule = createShaderModule(vertShaderCode);
+	VkShaderModule fragShaderModule = createShaderModule(fragShaderCode);
+}
+
+VkShaderModule VulkanApplication::createShaderModule(const std::vector<char>& code) {
+	VkShaderModeuleCreateInfo createInfo = {};
+	createInfo.sType = VK_STRUCTURE_TYPE_SHADER_MODULE_CREATE_INFO;
+	createInfo.codeSize = code.size();
+	createInfo.pCode = reinterpret_cast<const uint32_t*>(code.data());
+
+	VkShaderModule shaderModule;
+	if (vkCreateShaderModule(device, &createInfo, nullptr, &shaderModule) != VK_SUCCESS) {
+		throw std::runtime_error("Failed to create shader module");
+	}
+
+	return shaderModule;
 }
 
 bool VulkanApplication::checkValidationSupport() {
@@ -323,7 +345,6 @@ bool VulkanApplication::checkValidationSupport() {
 	// If we reach this point, every validationLayer we wanted is supported
 	return true;
 }
-
 
 
 

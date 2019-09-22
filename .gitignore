@@ -6,6 +6,12 @@
 # Ignoring Vulkan
 external/Vulkan/
 
+# Ignoring build folder
+build
+
+# Ignoring all spv files
+*.spv
+
 # User-specific files
 *.rsuser
 *.suo
