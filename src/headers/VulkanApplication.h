@@ -46,11 +46,13 @@ private:
 	// Create our handle to basic views of our swap chain images
 	void createImageViews();
 
-	// Create our grpahics pipeline handle
+	// Create our grpahics pipeline, creating shaders and graphics pipeline settings
 	void createGraphicsPipeline();
 
 	// Create our shader module
 	VkShaderModule createShaderModule(const std::vector<char>& code);
+
+	void createRenderPass();
 	
 	// Check if all requested validation layers are supported
 	bool checkValidationSupport();
@@ -122,7 +124,13 @@ private:
 	VkFormat swapChainImageFormat;
 	VkExtent2D swapChainExtent;
 
-	//
+	// Handle to our one graphics pipeline
+	VkPipeline graphicsPipeline;
+	// Our handle to our renderpass. Determines what happens during this render
+	VkRenderPass renderPass;
+	// Our shader layout. Need one for each shader combination / pipeline we want
+	VkPipelineLayout pipelineLayout;
+
 	// Which validation layers we want, which check for improper usage
 	// Validates what we are using
 	const std::vector<const char*> validationLayers = {
