@@ -27,6 +27,9 @@ private:
 	// Free up dynamic memory and allocated objects in Vulkan
 	void cleanup();
 
+	// Our main draw loop. Calls draw commands
+	void drawFrame();
+
 
 	
 	/// * * * * * VULKAN HANDLE CREATION * * * * * ///
@@ -52,11 +55,23 @@ private:
 	// Create our shader module
 	VkShaderModule createShaderModule(const std::vector<char>& code);
 
+	// Set up our render pass
 	void createRenderPass();
+
+	// Create our framebuffers for each image in our swapchain
+	void createFramebuffers();
+
+	// Create our command pool
+	void createCommandPool();
+
+	// Create our command buffers to be used in our command pool
+	void createCommandBuffers();
+
+	// Set up our semaphores
+	void createSemaphores();
 	
 	// Check if all requested validation layers are supported
 	bool checkValidationSupport();
-
 
 
 
@@ -121,8 +136,17 @@ private:
 	VkSwapchainKHR swapChain;
 	std::vector<VkImage> swapChainImages;
 	std::vector<VkImageView> swapChainImageViews;
+	std::vector<VkFramebuffer> swapChainFramebuffers;
 	VkFormat swapChainImageFormat;
 	VkExtent2D swapChainExtent;
+
+	// Command pool and buffers for our graphics queue
+	VkCommandPool commandPool;
+	std::vector<VkCommandBuffer> commandBuffers;
+
+	// Semaphores to synchronize drawing operations on gpu
+	VkSemaphore imageAvailableSemaphore;
+	VkSemaphore renderFinishedSemaphore;
 
 	// Handle to our one graphics pipeline
 	VkPipeline graphicsPipeline;
