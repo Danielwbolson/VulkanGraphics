@@ -30,9 +30,12 @@ private:
 	// Our main draw loop. Calls draw commands
 	void drawFrame();
 
+	// Our callback for resizing of window
+	static void framebufferResizeCallback(GLFWwindow* window, int width, int height);
+
 
 	
-	/// * * * * * VULKAN HANDLE CREATION * * * * * ///
+	/// * * * * * VULKAN HANDLE CREATION AND MANAGEMENT* * * * * ///
 
 	// Create our Vulkan instance. Connection between app and vulkan
 	void createInstance();
@@ -45,6 +48,10 @@ private:
 
 	// Create our swapchain to draw images to our surface
 	void createSwapChain();
+
+	// Handle window changes like fullscreen
+	void recreateSwapChain();
+	void cleanupSwapChain();
 
 	// Create our handle to basic views of our swap chain images
 	void createImageViews();
@@ -67,8 +74,8 @@ private:
 	// Create our command buffers to be used in our command pool
 	void createCommandBuffers();
 
-	// Set up our semaphores
-	void createSemaphores();
+	// Set up our semaphores and fences
+	void createSyncObjects();
 	
 	// Check if all requested validation layers are supported
 	bool checkValidationSupport();
@@ -134,6 +141,7 @@ private:
 
 	// Our swapchain handles
 	VkSwapchainKHR swapChain;
+	VkSwapchainKHR oldSwapChain = VK_NULL_HANDLE;
 	std::vector<VkImage> swapChainImages;
 	std::vector<VkImageView> swapChainImageViews;
 	std::vector<VkFramebuffer> swapChainFramebuffers;
@@ -144,9 +152,16 @@ private:
 	VkCommandPool commandPool;
 	std::vector<VkCommandBuffer> commandBuffers;
 
-	// Semaphores to synchronize drawing operations on gpu
-	VkSemaphore imageAvailableSemaphore;
-	VkSemaphore renderFinishedSemaphore;
+
+	// Frame variables
+	const int MAX_FRAMES_IN_FLIGHT = 2;
+	int currentFrame = 0;
+	bool frameBufferResized = false;
+
+	// Semaphores/fences to synchronize drawing operations on gpu
+	std::vector<VkSemaphore> imageAvailableSemaphores;
+	std::vector<VkSemaphore> renderFinishedSemaphores;
+	std::vector<VkFence> inFlightFences;
 
 	// Handle to our one graphics pipeline
 	VkPipeline graphicsPipeline;
@@ -158,7 +173,7 @@ private:
 	// Which validation layers we want, which check for improper usage
 	// Validates what we are using
 	const std::vector<const char*> validationLayers = {
-		"VK_LAYER_KHRONOS_validation",
+		"VK_LAYER_LUNARG_standard_validation"
 	};
 
 	// Wanted extensions in the device

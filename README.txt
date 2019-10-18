@@ -5,7 +5,7 @@ Currently following:
 https://vulkan-tutorial.com/Drawing_a_triangle
 
 Status: 
-Drawing a triangle --> Drawing --> Rendering and Presentation
+Drawing a triangle --> Vertex Buffers --> Vertex input description
 
 Resources:
 https://www.khronos.org/blog/beginners-guide-to-vulkan
